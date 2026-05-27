@@ -1,13 +1,23 @@
-# woffu-mcp
+<p align="center">
+  <img src="docs/logo.svg" alt="woffu-mcp" width="240" />
+</p>
 
-**MCP server for [Woffu](https://www.woffu.com/) — clock in/out, check status, vacations, weekly hours, and holidays from any AI agent.**
+<p align="center">
+  <strong>MCP server for <a href="https://www.woffu.com/">Woffu</a> — clock in/out, check status, vacations, weekly hours, and holidays from any AI agent.</strong>
+</p>
 
-The first and only MCP integration for Woffu, the popular Spanish HR and attendance platform. Works with any MCP-compatible tool — Claude Code, Cursor, Windsurf, Hermes, VS Code, and more.
+<p align="center">
+  <a href="https://www.npmjs.com/package/woffu-mcp"><img src="https://img.shields.io/npm/v/woffu-mcp?style=for-the-badge&color=38bdf8" alt="npm version"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-34d399?style=for-the-badge" alt="License: MIT"></a>
+  <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-Compatible-a78bfa?style=for-the-badge" alt="MCP"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node-18+-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node"></a>
+</p>
 
-[![npm version](https://img.shields.io/npm/v/woffu-mcp?style=for-the-badge&color=cb3837)](https://www.npmjs.com/package/woffu-mcp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![MCP](https://img.shields.io/badge/MCP-Compatible-blue?style=for-the-badge)](https://modelcontextprotocol.io)
-[![Node](https://img.shields.io/badge/Node-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+<p align="center">
+  <a href="https://devidbarreiro.github.io/woffu-mcp/">Landing Page</a> &middot;
+  <a href="https://www.npmjs.com/package/woffu-mcp">npm</a> &middot;
+  <a href="https://github.com/devidbarreiro/woffu-mcp">GitHub</a>
+</p>
 
 > "Fichame" — and you're clocked in. From your terminal, your phone, or any AI agent.
 
@@ -289,3 +299,6 @@ MIT — use it however you want.
 ---
 
 Built by [David Barreiro](https://github.com/devidbarreiro) with Claude Code.
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-dbarreiro02-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/dbarreiro02/)
+[![Instagram](https://img.shields.io/badge/Instagram-davidbarreirooo-E4405F?style=flat-square&logo=instagram&logoColor=white)](https://www.instagram.com/davidbarreirooo/)

@@ -16,20 +16,47 @@ import { WoffuClient } from "./woffu-client.js";
 
 // ── Environment ─────────────────────────────────────────────────────────────
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(
-      `Missing required environment variable: ${name}. ` +
-        `Set it before starting the server.`,
-    );
+const REQUIRED_VARS = ["WOFFU_COMPANY", "WOFFU_EMAIL", "WOFFU_PASSWORD"] as const;
+const missing = REQUIRED_VARS.filter((v) => !process.env[v]);
+
+if (missing.length > 0) {
+  console.error(`
+╔══════════════════════════════════════════════════╗
+║              woffu-mcp v1.0.0                    ║
+╚══════════════════════════════════════════════════╝
+
+  Missing environment variables:
+${missing.map((v) => `    ✗ ${v}`).join("\n")}
+
+  Set them in your MCP client config. Example for Claude Code:
+
+  // ~/.claude/settings.json
+  {
+    "mcpServers": {
+      "woffu": {
+        "command": "npx",
+        "args": ["-y", "woffu-mcp"],
+        "env": {
+          "WOFFU_COMPANY": "mycompany",
+          "WOFFU_EMAIL": "me@company.com",
+          "WOFFU_PASSWORD": "your-password"
+        }
+      }
+    }
   }
-  return value;
+
+  WOFFU_COMPANY = your company subdomain (mycompany.woffu.com)
+  WOFFU_EMAIL   = your Woffu login email
+  WOFFU_PASSWORD = your Woffu password
+
+  Docs: https://devidbarreiro.github.io/woffu-mcp/
+`);
+  process.exit(1);
 }
 
-const WOFFU_COMPANY = requireEnv("WOFFU_COMPANY");
-const WOFFU_EMAIL = requireEnv("WOFFU_EMAIL");
-const WOFFU_PASSWORD = requireEnv("WOFFU_PASSWORD");
+const WOFFU_COMPANY = process.env.WOFFU_COMPANY!;
+const WOFFU_EMAIL = process.env.WOFFU_EMAIL!;
+const WOFFU_PASSWORD = process.env.WOFFU_PASSWORD!;
 
 const client = new WoffuClient(WOFFU_COMPANY);
 

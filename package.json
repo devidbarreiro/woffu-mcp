@@ -1,0 +1,46 @@
+{
+  "name": "woffu-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Woffu — clock in/out, check status, vacations, and more",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "woffu-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "mcp",
+    "woffu",
+    "attendance",
+    "hr",
+    "clock-in",
+    "fichaje",
+    "model-context-protocol"
+  ],
+  "author": "David Barreiro <dev.idbarreiro@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devidbarreiro/woffu-mcp"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.5.0"
+  }
+}

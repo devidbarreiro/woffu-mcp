@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>woffu-mcp</title>
+<meta name="description" content="MCP server for Woffu. Clock in/out from any AI agent.">
+<meta name="theme-color" content="#1a1a1a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Satoshi:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg: oklch(0.13 0.008 250);
+  --bg-raised: oklch(0.17 0.008 250);
+  --bg-code: oklch(0.11 0.01 250);
+  --text: oklch(0.92 0.008 250);
+  --text-dim: oklch(0.58 0.008 250);
+  --accent: oklch(0.72 0.18 145);
+  --accent-dim: oklch(0.45 0.12 145);
+  --border: oklch(0.25 0.008 250);
+  --mono: 'Geist Mono', monospace;
+  --sans: 'Satoshi', system-ui, sans-serif;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 clamp(1.25rem, 5vw, 2.5rem);
+}
+
+/* ---- HERO ---- */
+
+.hero {
+  padding: clamp(4rem, 12vh, 8rem) 0 clamp(3rem, 8vh, 5rem);
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: oklch(0.72 0.18 145 / 0.08);
+  padding: 0.35rem 0.75rem;
+  border-radius: 100px;
+  border: 1px solid oklch(0.72 0.18 145 / 0.15);
+  margin-bottom: 1.5rem;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 span {
+  color: var(--accent);
+}
+
+.hero-sub {
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  color: var(--text-dim);
+  max-width: 540px;
+  line-height: 1.55;
+}
+
+/* ---- INSTALL ---- */
+
+.install {
+  margin: 0 0 clamp(3rem, 8vh, 5rem);
+}
+
+.install-box {
+  display: flex;
+  align-items: center;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.install-box:hover {
+  border-color: var(--accent-dim);
+}
+
+.install-box .prompt {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+.install-box code {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+}
+
+.install-box .copy-hint {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.install-box:hover .copy-hint { opacity: 1; }
+
+.install-box.copied .copy-hint {
+  opacity: 1;
+  color: var(--accent);
+}
+
+/* ---- SECTIONS ---- */
+
+section {
+  padding: clamp(2.5rem, 6vh, 4rem) 0;
+  border-top: 1px solid var(--border);
+}
+
+section h2 {
+  font-size: clamp(1.5rem, 3vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+}
+
+section p {
+  color: var(--text-dim);
+  max-width: 60ch;
+  margin-bottom: 1rem;
+}
+
+/* ---- TOOLS GRID ---- */
+
+.tools-list {
+  display: grid;
+  gap: 0;
+}
+
+.tool-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid oklch(0.2 0.005 250);
+  align-items: baseline;
+}
+
+.tool-row:last-child { border-bottom: none; }
+
+.tool-name {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.tool-desc {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+/* ---- CODE BLOCKS ---- */
+
+.code-block {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.code-block pre {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.65;
+  color: var(--text);
+}
+
+.code-block .comment { color: var(--text-dim); }
+.code-block .string { color: oklch(0.78 0.14 80); }
+.code-block .key { color: oklch(0.75 0.15 200); }
+
+.code-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.75rem;
+}
+
+/* ---- AGENT TABS ---- */
+
+.agent-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+}
+
+.agent-tab {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.6rem 1rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.agent-tab:hover { color: var(--text); }
+.agent-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.agent-config { display: none; }
+.agent-config.active { display: block; }
+
+/* ---- CONVERSATION ---- */
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.msg {
+  max-width: 85%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.msg-user {
+  align-self: flex-end;
+  background: var(--accent);
+  color: oklch(0.13 0.01 145);
+  border-bottom-right-radius: 4px;
+  font-weight: 500;
+}
+
+.msg-agent {
+  align-self: flex-start;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+  color: var(--text);
+}
+
+.msg-agent code {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  background: var(--bg-code);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+}
+
+/* ---- HOW IT WORKS ---- */
+
+.flow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+.flow-node {
+  padding: 0.5rem 1rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.flow-arrow {
+  color: var(--accent-dim);
+  font-size: 1.1rem;
+}
+
+/* ---- FOOTER ---- */
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: clamp(2rem, 4vh, 3rem) 0 clamp(3rem, 6vh, 4rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+footer .left {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+footer .links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+footer .links a {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+footer .links a:hover { color: var(--accent); }
+
+/* ---- RESPONSIVE ---- */
+
+@media (max-width: 600px) {
+  .tool-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+  .flow { font-size: 0.75rem; }
+  .flow-node { padding: 0.4rem 0.75rem; }
+}
+
+/* ---- ENTRANCE ---- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero reveal">
+    <div class="hero-badge">v1.0.0 on npm</div>
+    <h1>Clock in from<br>your <span>terminal</span></h1>
+    <p class="hero-sub">MCP server for Woffu. Connect it to Claude, Cursor, Windsurf, or any AI agent. Say "fichame" and you're clocked in.</p>
+  </div>
+
+  <!-- INSTALL -->
+  <div class="install reveal">
+    <div class="install-box" onclick="copyInstall(this)">
+      <span class="prompt">$</span>
+      <code>npx woffu-mcp</code>
+      <span class="copy-hint">click to copy</span>
+    </div>
+  </div>
+
+  <!-- TOOLS -->
+  <section class="reveal">
+    <h2>7 tools. One command.</h2>
+    <div class="tools-list">
+      <div class="tool-row">
+        <span class="tool-name">clock_toggle</span>
+        <span class="tool-desc">Auto-detects entry or exit. The one you'll use every day.</span>
+      </div>
+      <div class="tool-row">
+        <span class="tool-name">clock_in</span>
+        <span class="tool-desc">Force clock in. Skips if already clocked in.</span>
+      </div>
+      <div class="tool-row">
+        <span class="tool-name">clock_out</span>
+        <span class="tool-desc">Force clock out. Skips if not clocked in.</span>
+      </div>
+      <div class="tool-row">
+        <span class="tool-name">get_status</span>
+        <span class="tool-desc">Working or not, today's signs, schedule, vacation balance.</span>
+      </div>
+      <div class="tool-row">
+        <span class="tool-name">get_week_summary</span>
+        <span class="tool-desc">Hours worked vs scheduled this week, per day.</span>
+      </div>
+      <div class="tool-row">
+        <span class="tool-name">get_vacations</span>
+        <span class="tool-desc">Allocated, used, available. All your days at a glance.</span>
+      </div>
+      <div class="tool-row">
+        <span class="tool-name">get_holidays</span>
+        <span class="tool-desc">Company holidays for any year. Never miss a day off.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONVERSATION -->
+  <section class="reveal">
+    <h2>It feels like this</h2>
+    <div class="conversation">
+      <div class="msg msg-user">Fichame</div>
+      <div class="msg msg-agent">Clocked in. Entry registered at <code>09:02:15</code>. 3 signs today.</div>
+      <div class="msg msg-user">How's my week looking?</div>
+      <div class="msg msg-agent">Mon: <code>8h32m</code> / 8h45m<br>Tue: <code>6h15m</code> / 8h45m (in progress)<br>Wed-Fri: pending</div>
+      <div class="msg msg-user">Vacation days left?</div>
+      <div class="msg msg-agent"><code>18</code> available out of 23 allocated. 5 used.</div>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section class="reveal">
+    <h2>Connect to your agent</h2>
+    <p>Three env vars. Pick your tool.</p>
+
+    <div class="agent-tabs">
+      <button class="agent-tab active" onclick="switchTab('claude', this)">Claude Code</button>
+      <button class="agent-tab" onclick="switchTab('cursor', this)">Cursor</button>
+      <button class="agent-tab" onclick="switchTab('windsurf', this)">Windsurf</button>
+      <button class="agent-tab" onclick="switchTab('vscode', this)">VS Code</button>
+      <button class="agent-tab" onclick="switchTab('hermes', this)">Hermes</button>
+    </div>
+
+    <div id="tab-claude" class="agent-config active">
+      <div class="code-label">~/.claude/settings.json</div>
+      <div class="code-block"><pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"woffu"</span>: {
+      <span class="key">"command"</span>: <span class="string">"npx"</span>,
+      <span class="key">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"woffu-mcp"</span>],
+      <span class="key">"env"</span>: {
+        <span class="key">"WOFFU_COMPANY"</span>: <span class="string">"mycompany"</span>,
+        <span class="key">"WOFFU_EMAIL"</span>: <span class="string">"me@company.com"</span>,
+        <span class="key">"WOFFU_PASSWORD"</span>: <span class="string">"your-password"</span>
+      }
+    }
+  }
+}</pre></div>
+    </div>
+
+    <div id="tab-cursor" class="agent-config">
+      <div class="code-label">.cursor/mcp.json</div>
+      <div class="code-block"><pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"woffu"</span>: {
+      <span class="key">"command"</span>: <span class="string">"npx"</span>,
+      <span class="key">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"woffu-mcp"</span>],
+      <span class="key">"env"</span>: {
+        <span class="key">"WOFFU_COMPANY"</span>: <span class="string">"mycompany"</span>,
+        <span class="key">"WOFFU_EMAIL"</span>: <span class="string">"me@company.com"</span>,
+        <span class="key">"WOFFU_PASSWORD"</span>: <span class="string">"your-password"</span>
+      }
+    }
+  }
+}</pre></div>
+    </div>
+
+    <div id="tab-windsurf" class="agent-config">
+      <div class="code-label">~/.codeium/windsurf/mcp_config.json</div>
+      <div class="code-block"><pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"woffu"</span>: {
+      <span class="key">"command"</span>: <span class="string">"npx"</span>,
+      <span class="key">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"woffu-mcp"</span>],
+      <span class="key">"env"</span>: {
+        <span class="key">"WOFFU_COMPANY"</span>: <span class="string">"mycompany"</span>,
+        <span class="key">"WOFFU_EMAIL"</span>: <span class="string">"me@company.com"</span>,
+        <span class="key">"WOFFU_PASSWORD"</span>: <span class="string">"your-password"</span>
+      }
+    }
+  }
+}</pre></div>
+    </div>
+
+    <div id="tab-vscode" class="agent-config">
+      <div class="code-label">.vscode/mcp.json</div>
+      <div class="code-block"><pre>{
+  <span class="key">"servers"</span>: {
+    <span class="key">"woffu"</span>: {
+      <span class="key">"command"</span>: <span class="string">"npx"</span>,
+      <span class="key">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"woffu-mcp"</span>],
+      <span class="key">"env"</span>: {
+        <span class="key">"WOFFU_COMPANY"</span>: <span class="string">"mycompany"</span>,
+        <span class="key">"WOFFU_EMAIL"</span>: <span class="string">"me@company.com"</span>,
+        <span class="key">"WOFFU_PASSWORD"</span>: <span class="string">"your-password"</span>
+      }
+    }
+  }
+}</pre></div>
+    </div>
+
+    <div id="tab-hermes" class="agent-config">
+      <div class="code-label">~/.hermes/config.yaml</div>
+      <div class="code-block"><pre><span class="key">mcp_servers</span>:
+  <span class="key">woffu</span>:
+    <span class="key">command</span>: <span class="string">npx</span>
+    <span class="key">args</span>:
+      - <span class="string">"-y"</span>
+      - <span class="string">"woffu-mcp"</span>
+    <span class="key">env</span>:
+      <span class="key">WOFFU_COMPANY</span>: <span class="string">"mycompany"</span>
+      <span class="key">WOFFU_EMAIL</span>: <span class="string">"me@company.com"</span>
+      <span class="key">WOFFU_PASSWORD</span>: <span class="string">"your-password"</span>
+    <span class="key">enabled</span>: <span class="string">true</span></pre></div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="reveal">
+    <h2>How it works</h2>
+    <p>Your agent talks to Woffu through MCP. No middleware, no hosted service. Everything runs on your machine.</p>
+    <div class="flow">
+      <span class="flow-node">Your Agent</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-node" style="border-color: var(--accent-dim)">woffu-mcp</span>
+      <span class="flow-arrow">&rarr;</span>
+      <span class="flow-node">Woffu API</span>
+    </div>
+    <p>Clock logic is automatic. Even sign count means entry, odd means exit. Holidays and weekends are skipped. Your credentials never leave your machine.</p>
+  </section>
+
+  <!-- WHAT IS -->
+  <section class="reveal">
+    <h2>What is MCP?</h2>
+    <p><a href="https://modelcontextprotocol.io">Model Context Protocol</a> is an open standard by Anthropic that lets AI agents connect to external tools. Think USB-C for AI: one protocol, many tools. Any agent that supports MCP can use this server.</p>
+    <h2 style="margin-top: 2.5rem;">What is Woffu?</h2>
+    <p><a href="https://www.woffu.com/">Woffu</a> is an HR platform used by thousands of companies in Spain and Latin America for time tracking, attendance, and vacation management. Required by Spanish labor law (Real Decreto-ley 8/2019).</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="left">MIT. Built by <a href="https://github.com/devidbarreiro">David Barreiro</a>.</span>
+    <div class="links">
+      <a href="https://www.npmjs.com/package/woffu-mcp">npm</a>
+      <a href="https://github.com/devidbarreiro/woffu-mcp">GitHub</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+function copyInstall(el) {
+  navigator.clipboard.writeText('npx woffu-mcp');
+  el.classList.add('copied');
+  el.querySelector('.copy-hint').textContent = 'copied!';
+  setTimeout(() => {
+    el.classList.remove('copied');
+    el.querySelector('.copy-hint').textContent = 'click to copy';
+  }, 2000);
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.agent-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.agent-config').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
